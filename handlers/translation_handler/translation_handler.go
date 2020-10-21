@@ -27,13 +27,12 @@ type TranslateSentenceResponse struct {
 	Sentence string `json:"gopher-sentence"`
 }
 
-
 func HandleTranslateWordRequest(ctx *gin.Context) {
 	req := TranslateWordRequest{}
 
 	if err := ctx.BindJSON(&req); err != nil {
 		helpers.GetLogger().WithFields(logrus.Fields{
-			"error": err.Error(),
+			"error":    err.Error(),
 			"req_type": "word",
 		}).Error("Failed to bind /word request body")
 
@@ -64,8 +63,8 @@ func HandleTranslateWordRequest(ctx *gin.Context) {
 	history_handler.UpdateHistory(req.Word, res.Word)
 
 	helpers.GetLogger().WithFields(logrus.Fields{
-		"req_type": "word",
-		"original": req.Word,
+		"req_type":    "word",
+		"original":    req.Word,
 		"translation": res.Word,
 	}).Info("Success")
 
@@ -79,7 +78,7 @@ func HandleTranslateSentenceRequest(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&req); err != nil {
 		helpers.GetLogger().WithFields(logrus.Fields{
-			"error": err.Error(),
+			"error":    err.Error(),
 			"req_type": "sentence",
 		}).Error("Failed to bind request body")
 
@@ -102,8 +101,8 @@ func HandleTranslateSentenceRequest(ctx *gin.Context) {
 	history_handler.UpdateHistory(req.Sentence, res.Sentence)
 
 	helpers.GetLogger().WithFields(logrus.Fields{
-		"req_type": "sentence",
-		"original": req.Sentence,
+		"req_type":    "sentence",
+		"original":    req.Sentence,
 		"translation": res.Sentence,
 	}).Info("Success")
 
@@ -155,7 +154,7 @@ func translateSentence(sentence string) string {
 
 	var words []string
 
-	for _, word := range strings.Fields(sentence[0:len(sentence)-1]) {
+	for _, word := range strings.Fields(sentence[0 : len(sentence)-1]) {
 		if strings.Contains(word, "'") {
 			continue
 		}
