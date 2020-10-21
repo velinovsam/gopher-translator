@@ -1,4 +1,4 @@
-package historyHandler
+package history_handler
 
 import (
 	"github.com/gin-gonic/gin"

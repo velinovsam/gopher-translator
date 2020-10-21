@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gopher-translator/handlers/historyHandler"
-	"gopher-translator/handlers/translationHandler"
+	"gopher-translator/handlers/history_handler"
+	"gopher-translator/handlers/translation_handler"
 )
 
 func main() {
@@ -15,9 +15,9 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/word", translationHandler.HandleTranslateWordRequest)
-	router.POST("/sentence", translationHandler.HandleTranslateSentenceRequest)
-	router.GET("/history", historyHandler.HandleHistoryRequest)
+	router.POST("/word", translation_handler.HandleTranslateWordRequest)
+	router.POST("/sentence", translation_handler.HandleTranslateSentenceRequest)
+	router.GET("/history", history_handler.HandleHistoryRequest)
 
 	_ = router.Run(fmt.Sprintf(":%d", *port))
 }
