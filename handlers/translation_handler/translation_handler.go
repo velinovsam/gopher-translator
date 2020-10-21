@@ -3,7 +3,9 @@ package translation_handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"gopher-translator/handlers/history_handler"
+	"gopher-translator/helpers"
 	"regexp"
 	"strings"
 	"unicode"
@@ -30,20 +32,28 @@ func HandleTranslateWordRequest(ctx *gin.Context) {
 	req := TranslateWordRequest{}
 
 	if err := ctx.BindJSON(&req); err != nil {
-		fmt.Println(err.Error())
+		helpers.GetLogger().WithFields(logrus.Fields{
+			"error": err.Error(),
+			"req_type": "word",
+		}).Error("Failed to bind /word request body")
+
 		ctx.JSON(400, "Invalid request")
 		return
 	}
 
 	if len(req.Word) == 0 {
-		fmt.Println("Invalid input")
+		helpers.GetLogger().Error("/word request has incorrect json structure or empty value")
+
 		ctx.JSON(400, "Invalid request")
 		return
 	}
 
 	if strings.Contains(req.Word, "'") {
-		fmt.Println("Word contains invalid characters")
-		ctx.JSON(400, "Gophers don't understand shortened versions of words or apostrophes.")
+		helpers.GetLogger().WithFields(logrus.Fields{
+			"word": req.Word,
+		}).Warn("Word contains apostrophe, skipping")
+
+		ctx.JSON(200, "Gophers don't understand shortened versions of words or apostrophes.")
 		return
 	}
 
@@ -52,6 +62,12 @@ func HandleTranslateWordRequest(ctx *gin.Context) {
 	}
 
 	history_handler.UpdateHistory(req.Word, res.Word)
+
+	helpers.GetLogger().WithFields(logrus.Fields{
+		"req_type": "word",
+		"original": req.Word,
+		"translation": res.Word,
+	}).Info("Success")
 
 	ctx.JSON(200, res)
 
@@ -62,11 +78,20 @@ func HandleTranslateSentenceRequest(ctx *gin.Context) {
 	req := TranslateSentenceRequest{}
 
 	if err := ctx.BindJSON(&req); err != nil {
+		helpers.GetLogger().WithFields(logrus.Fields{
+			"error": err.Error(),
+			"req_type": "sentence",
+		}).Error("Failed to bind request body")
+
 		ctx.JSON(400, "Invalid request")
 		return
 	}
 
 	if !validateSentence(req.Sentence) {
+		helpers.GetLogger().WithFields(logrus.Fields{
+			"sentence": req.Sentence,
+		}).Error("Failed to validate sentence")
+
 		ctx.JSON(400, "Invalid request")
 		return
 	}
@@ -75,6 +100,12 @@ func HandleTranslateSentenceRequest(ctx *gin.Context) {
 	res.Sentence = translateSentence(req.Sentence)
 
 	history_handler.UpdateHistory(req.Sentence, res.Sentence)
+
+	helpers.GetLogger().WithFields(logrus.Fields{
+		"req_type": "sentence",
+		"original": req.Sentence,
+		"translation": res.Sentence,
+	}).Info("Success")
 
 	ctx.JSON(200, res)
 
